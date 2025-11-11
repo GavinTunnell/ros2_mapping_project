@@ -85,7 +85,7 @@ class EncodersNode(Node):
         self._vel_eps       = float(self.get_parameter('vel_eps').value)
 
         # QoS & pubs
-        qos = QoSProfile(reliability=ReliabilityPolicy.BEST_EFFORT,
+        qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
                          history=HistoryPolicy.KEEP_LAST, depth=10)
         self.odom_pub = self.create_publisher(Odometry, '/wheel_odom', qos)
 

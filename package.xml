@@ -20,5 +20,6 @@
   <exec_depend>nav2_bringup</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>sllidar_ros2</exec_depend>
+  <exec_depend>teleop_twist_keyboard</exec_depend> <!-- for manual testing -->
   <export><build_type>ament_python</build_type></export>
 </package>

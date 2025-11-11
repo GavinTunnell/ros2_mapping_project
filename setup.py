@@ -39,6 +39,7 @@ setup(
             'encoders_node = encoders_node:main',
             'imu_twist_odom_node = imu_twist_odom_node:main',
             'motor_driver_node = motor_driver_node:main',
+            'yolo_autofocus_servo = ros2_mapping_project.yolo_autofocus_servo_node:main',
         ],
     },
 )

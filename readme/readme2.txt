@@ -36,7 +36,7 @@ python3 encoders_node.py --ros-args \
    # more sensitive: accept closer edges, count both channels
 
 python3 encoders_node.py --ros-args \
-  -p left_A:=16 -p left_B:=12 -p right_A:=7 -p right_B:=11 \
+  -p left_A:=7 -p left_B:=11 -p right_A:=12 -p right_B:=16 \
   -p left_active_low:=true -p right_active_low:=true \
   -p left_only_A_edges:=false -p right_only_A_edges:=false \
   -p edge_min_us:=200  -p debounce_ms:=0 \
@@ -44,3 +44,22 @@ python3 encoders_node.py --ros-args \
   -p wheel_radius:=0.05 -p wheel_base:=0.24 -p ticks_per_rev:=333.3333
 
 
+#MOTOR DRIVER
+
+
+
+ # Terminal 2 – teleop (your WASD script from before)
+source /opt/ros/humble/setup.bash
+python3 wasd_teleop.py    # publishes to /cmd_vel
+
+ source /opt/ros/humble/setup.bash
+python3 motor_driver_pca_reg_dual.py --ros-args \
+  -p ena_addr:="'0x41'" -p enb_addr:="'0x60'" \
+  -p ena_channel:=0 -p in1_channel:=1 -p in2_channel:=2 \
+  -p enb_channel:=0 -p in3_channel:=1 -p in4_channel:=2 \
+  -p pwm_freq_hz:=1000.0 \
+  -p max_lin:=0.8 -p max_ang_cmd:=1.2 -p deadband:=0.03 \
+  -p min_duty_pct:=35.0 -p brake_on_zero:=false \
+  -p invert_right:=false -p invert_left:=true \
+  -p map_enA_to_left:=true
+[INFO] [1762304820.177712912] [motor_driver_pca_dual]: PCA A=0x41 (EnA=0, In1=1, In2=2) | PCA B=0x60 (EnB=0, In3=1, In4=2) | freq=1000.0Hz min_duty=35%

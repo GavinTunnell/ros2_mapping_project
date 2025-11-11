@@ -1,0 +1,38 @@
+# A) Static TFs (if not launched elsewhere)
+source /opt/ros/humble/setup.bash
+ros2 run tf2_ros static_transform_publisher 0 0 0.10 0 0 0 base_link laser &
+ros2 run tf2_ros static_transform_publisher 0 0 0.05  0 0 0 base_link imu_link &
+
+# B) Encoders -> /wheel_odom
+python3 ~/Desktop/ros2_mapping_project/encoders_node.py --ros-args \
+  -p left_A:=12 -p left_B:=16 -p right_A:=7 -p right_B:=11 \
+  -p publish_rate_hz:=20.0 -p wheel_radius:=0.05 -p wheel_base:=0.24 -p ticks_per_rev:=333.3333 &
+
+# C) IMU + filter
+ros2 run imu_filter_madgwick imu_filter_madgwick_node --ros-args \
+  -p use_mag:=false -p publish_tf:=false -p world_frame:=enu &
+# (and your IMU raw publisher node if separate)
+
+# D) LiDAR
+ros2 run sllidar_ros2 sllidar_node --ros-args \
+  -p channel_type:=serial -p serial_port:=/dev/ttyUSB0 \
+  -p serial_baudrate:=115200 -p frame_id:=laser -p angle_compensate:=true &
+
+# E) SLAM (or AMCL/map_server if using a saved map)
+ros2 launch slam_toolbox online_async_launch.py slam_params_file:=/path/to/slam_params.yaml &
+
+# F) Nav2 bringup (make sure nav2_params points to your config)
+ros2 launch nav2_bringup bringup_launch.py use_sim_time:=false \
+  params_file:=/path/to/nav2_params.yaml &
+
+# G) Twist pipeline (if not inside your composite bringup)
+ros2 run nav2_velocity_smoother velocity_smoother --ros-args \
+  --remap cmd_vel:=/cmd_vel --remap cmd_vel_smoothed:=/cmd_vel_smoothed &
+ros2 run twist_mux twist_mux --ros-args \
+  --ros-args --params-file /path/to/twist_mux.yaml \
+  --remap cmd_vel_out:=/cmd_vel_out &
+
+# H) Motor driver (remap to mux output)
+python3 ~/Desktop/ros2_mapping_project/motor_driver_node.py --ros-args -r /cmd_vel:=/cmd_vel_out \
+  -p ena:=15 -p enb:=32 -p in1:=23 -p in2:=19 -p in3:=21 -p in4:=18 \
+  -p pwm_freq_hz:=1000.0 -p min_duty_pct:=20.0 -p deadband_speed:=0.01 -p wheel_base:=0.24 &
