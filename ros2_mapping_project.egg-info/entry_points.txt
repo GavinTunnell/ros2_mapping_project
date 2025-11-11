@@ -1,0 +1,7 @@
+[console_scripts]
+encoders_node = encoders_node:main
+imu_node = imu_node:main
+imu_twist_odom_node = imu_twist_odom_node:main
+lidar_node = lidar_node:main
+motor_driver_node = motor_driver_node:main
+

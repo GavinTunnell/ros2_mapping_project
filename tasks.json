@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "Build Project", "type": "shell", "command": "colcon build --symlink-install", "group": "build" },
+    { "label": "Source Setup", "type": "shell", "command": "source install/setup.bash" },
+    { "label": "Launch with IMU", "type": "shell", "command": "killall -9 ros2; ros2 launch ros2_mapping_project mapping_launch.py" },
+    { "label": "Launch no IMU", "type": "shell", "command": "killall -9 ros2; ros2 launch ros2_mapping_project mapping_launch_no_imu.py" }
+  ]
+}
