@@ -19,7 +19,7 @@ ekf_filter_node:
     imu0_queue_size: 50
 
     # Primary twist source. Overridden in launch to /imu_odom when encoders are offline.
-    twist0: /wheel_odom
+    twist0: /wheel_twist
     twist0_config: [true,  false, false,   # vx, vy, vz
                     false, false, true]    # vroll, vpitch, vyaw
     twist0_queue_size: 50
