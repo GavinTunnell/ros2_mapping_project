@@ -44,7 +44,7 @@ class EncodersNode(Node):
         self.declare_parameter('ticks_per_rev', 333.3333)   # ticks per wheel rev (Rover 5 ≈ 1000/3 @4x)
 
         # --- Timing / edge handling ---
-        self.declare_parameter('publish_rate_hz', 10.0)     # odom/debug rate
+        self.declare_parameter('publish_rate_hz', 50.0)     # odom/debug rate
         self.declare_parameter('debounce_ms', 0)            # Jetson ignores pull-up config; this is ISR bouncetime
         self.declare_parameter('edge_min_us', 200)          # per-pin minimum microseconds between edges (deglitch)
         self.declare_parameter('poll_rate_hz', 0.0)         # 0 = use interrupts; >0 = poll at this rate

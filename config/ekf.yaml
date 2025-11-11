@@ -12,6 +12,8 @@ ekf_filter_node:
     twist0: /wheel_twist
     twist0_config: [true, false, false,
                     false, false, true]
+    twist0_queue_size: 50
+    twist0_nodelay: true
     twist0_differential: false
     twist0_relative: false
 
@@ -19,6 +21,7 @@ ekf_filter_node:
     imu0_config: [false, false, false,
                   false, false, true,
                   false, false, false,
-                  false, false, false,
+                  false, false, true,
                   false, false, false]
+    imu0_queue_size: 50
     imu0_remove_gravitational_acceleration: true
