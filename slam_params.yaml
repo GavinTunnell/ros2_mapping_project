@@ -5,13 +5,14 @@ slam_toolbox:
     map_frame: map
     base_frame: base_link
     odom_frame: odom
-    provide_odom_frame: false    # we publish odom->base_link
-    publish_tf: false            # we already publish TF
+
+    provide_odom_frame: true   # EKF publishes odom->base_link
+    publish_tf: true            # SLAM publishes map->odom
     use_odometry: true
     use_scan_matching: true
 
-    minimum_travel_distance: 0.005
-    minimum_travel_rotation: 0.005
+    minimum_travel_distance: 0.03
+    minimum_travel_rotation: 0.04
     minimum_time_interval: 0.05
 
     resolution: 0.05
