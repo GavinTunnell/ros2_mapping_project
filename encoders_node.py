@@ -3,7 +3,6 @@ import math, time, threading
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TwistWithCovarianceStamped
 from std_msgs.msg import Float32, String, Int32
 
@@ -20,7 +19,7 @@ class EncodersNode(Node):
     Robust quadrature encoder reader for two wheels (Rover 5).
     - Handles active_low polarity, illegal transitions, per-pin deglitch.
     - Optional polling fallback.
-    - Publishes /wheel_odom (twist only), plus debug topics:
+    - Publishes /wheel_twist (TwistWithCovarianceStamped), plus debug topics:
       /left_wheel/velocity (Float32, m/s)
       /right_wheel/velocity
       /left_wheel/direction (String: FWD/REV/STOP)
@@ -44,7 +43,7 @@ class EncodersNode(Node):
         self.declare_parameter('ticks_per_rev', 333.3333)   # ticks per wheel rev (Rover 5 ≈ 1000/3 @4x)
 
         # --- Timing / edge handling ---
-        self.declare_parameter('publish_rate_hz', 50.0)     # odom/debug rate
+        self.declare_parameter('publish_rate_hz', 50.0)     # twist/debug rate
         self.declare_parameter('debounce_ms', 0)            # Jetson ignores pull-up config; this is ISR bouncetime
         self.declare_parameter('edge_min_us', 200)          # per-pin minimum microseconds between edges (deglitch)
         self.declare_parameter('poll_rate_hz', 0.0)         # 0 = use interrupts; >0 = poll at this rate
@@ -88,7 +87,6 @@ class EncodersNode(Node):
         # QoS & pubs
         qos = QoSProfile(reliability=ReliabilityPolicy.RELIABLE,
                          history=HistoryPolicy.KEEP_LAST, depth=10)
-        self.odom_pub = self.create_publisher(Odometry, '/wheel_odom', qos)
         self.twist_pub = self.create_publisher(TwistWithCovarianceStamped, '/wheel_twist', qos)
 
         # Debug publishers
@@ -306,22 +304,6 @@ class EncodersNode(Node):
         w = (self._r_v_f - self._l_v_f) / self.L if self.L != 0.0 else 0.0
 
         stamp = self.get_clock().now().to_msg()
-
-        odom = Odometry()
-        odom.header.stamp = stamp
-        odom.header.frame_id = 'odom'
-        odom.child_frame_id = 'base_link'
-        odom.twist.twist.linear.x  = float(v)
-        odom.twist.twist.angular.z = float(w)
-        odom.twist.covariance = [
-            0.05, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.2, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.2, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.2, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.05
-        ]
-        self.odom_pub.publish(odom)
 
         twist = TwistWithCovarianceStamped()
         twist.header.stamp = stamp

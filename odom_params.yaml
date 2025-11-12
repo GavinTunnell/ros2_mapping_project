@@ -21,7 +21,7 @@ ekf_filter_node:
     imu0_remove_gravitational_acceleration: true
     imu0_queue_size: 50
 
-    # Twist from encoders (vx, vyaw)
+    # Encoders -> vx, wz (TwistWithCovarianceStamped, frame_id=base_link)
     twist0: /wheel_twist
     twist0_config: [
       false, false, false,    # x y z
