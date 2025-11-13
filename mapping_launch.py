@@ -13,7 +13,7 @@ def _bool_from_launch_config(context, launch_config: LaunchConfiguration) -> boo
 
 def _build_launch_nodes(context, *args, **kwargs):
     use_internal_lidar = _bool_from_launch_config(context, LaunchConfiguration('use_internal_lidar'))
-    use_imu_velocity = _bool_from_launch_config(context, LaunchConfiguration('use_imu_velocity'))
+    use_ekf = _bool_from_launch_config(context, LaunchConfiguration('use_ekf'))
 
     share_dir = get_package_share_directory('ros2_mapping_project')
 
@@ -46,20 +46,15 @@ def _build_launch_nodes(context, *args, **kwargs):
              remappings=[('/imu/data_raw', '/imu/raw'), ('/imu/data', '/imu/data')])
     ])
 
-    # Optional IMU-derived odom when encoders are offline
-    nodes.append(Node(package='ros2_mapping_project', executable='imu_twist_odom_node',
-                      name='imu_twist_odom_node', output='screen'))
-
     # Encoders (enable when hardware is connected)
     nodes.append(Node(package='ros2_mapping_project', executable='encoders_node',
                       name='encoders_node', output='screen'))
 
-    ekf_params = [os.path.join(share_dir, 'odom_params.yaml')]
-    ekf_params.append({'twist0': '/imu_odom' if use_imu_velocity else '/wheel_twist'})
-
-    # EKF: fuse twist + IMU -> /odometry/filtered and TF
-    nodes.append(Node(package='robot_localization', executable='ekf_node',
-                      name='ekf_filter_node', output='screen', parameters=ekf_params))
+    if use_ekf:
+        # EKF: fuse twist + IMU -> /odometry/filtered and TF
+        nodes.append(Node(package='robot_localization', executable='ekf_node',
+                          name='ekf_filter_node', output='screen',
+                          parameters=[os.path.join(share_dir, 'odom_params.yaml')]))
 
     # Static TFs: adjust offsets to your mounts
     nodes.extend([
@@ -70,9 +65,10 @@ def _build_launch_nodes(context, *args, **kwargs):
     ])
 
     # SLAM toolbox online sync
+    slam_params_file = 'slam_params.yaml' if use_ekf else 'slam_params_no_ekf.yaml'
     nodes.append(Node(package='slam_toolbox', executable='sync_slam_toolbox_node',
                       name='slam_toolbox',
-                      parameters=[os.path.join(share_dir, 'slam_params.yaml')]))
+                      parameters=[os.path.join(share_dir, slam_params_file)]))
 
     # RViz
     nodes.append(Node(package='rviz2', executable='rviz2', name='rviz2',
@@ -84,6 +80,6 @@ def _build_launch_nodes(context, *args, **kwargs):
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('use_internal_lidar', default_value='false'),
-        DeclareLaunchArgument('use_imu_velocity', default_value='true'),
+        DeclareLaunchArgument('use_ekf', default_value='true'),
         OpaqueFunction(function=_build_launch_nodes)
     ])

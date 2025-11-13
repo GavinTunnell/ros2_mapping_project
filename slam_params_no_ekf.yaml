@@ -6,10 +6,9 @@ slam_toolbox:
     base_frame: base_link
     odom_frame: odom
 
-    provide_odom_frame: false    # EKF publishes odom->base_link
+    provide_odom_frame: true     # SLAM publishes odom->base_link
     publish_tf: true             # SLAM publishes map->odom
-    use_odometry: true           # use TF (odom->base_link) as initial guess
-    use_scan_matching: true
+    use_odometry: false          # rely on scan matching only
 
     minimum_travel_distance: 0.03
     minimum_travel_rotation: 0.04

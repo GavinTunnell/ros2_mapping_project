@@ -8,33 +8,32 @@ ekf_filter_node:
     base_link_frame: base_link
     world_frame: odom
 
-    # Twist from encoders: enable vx (index 6) and vyaw (index 11)
+    # Encoders -> vx, wz
     twist0: /wheel_twist
     twist0_config: [
-      false, false, false,    # x  y  z
+      false, false, false,    # x y z
       false, false, false,    # roll pitch yaw
       true,  false, false,    # vx vy vz
-      false, false, true,     # vroll vpitch vyaw
-      false, false, false     # ax ay az
+      false, false, true,     # vroll vpitch vyaw (use wz from encoders)
+      false, false, false
     ]
     twist0_queue_size: 50
     twist0_nodelay: true
     twist0_differential: false
     twist0_relative: false
 
-    # IMU: use yaw (orientation.z) and yaw rate
+    # IMU: use yaw orientation ONLY
     imu0: /imu/data
     imu0_config: [
-      false, false, false,    # x  y  z
-      false, false, true,     # roll pitch yaw    (use orientation yaw)
-      false, false, false,    # vx vy vz
-      false, false, true,     # vroll vpitch vyaw (use gyro yaw rate)
-      false, false, false     # ax ay az
+      false, false, false,    # pos
+      false, false, true,     # yaw
+      false, false, false,    # vel
+      false, false, false,    # angular vel (disable yaw rate here)
+      false, false, false
     ]
-    imu0_differential: false
     imu0_remove_gravitational_acceleration: true
+    imu0_differential: false
     imu0_queue_size: 50
 
-    # (Optional but helpful)
     sensor_timeout: 0.2
     print_diagnostics: true
