@@ -180,13 +180,19 @@ def _launch_setup(context, *args, **kwargs):
     ])
 
     # ----- SLAM toolbox -----
-    if os.path.exists(slam_params):
-        actions.append(Node(
-            package='slam_toolbox', executable='sync_slam_toolbox_node',
-            name='slam_toolbox', output='screen', parameters=[slam_params]
-        ))
+    slam_params_found = os.path.exists(slam_params)
+    if use_nav2:
+        # Nav2 bringup will launch SLAM internally when slam:=True, so avoid duplicates here.
+        if not slam_params_found:
+            actions.append(LogInfo(msg=f'slam_params.yaml not found at {slam_params}; Nav2 will run without SLAM.'))
     else:
-        actions.append(LogInfo(msg=f'slam_params.yaml not found at {slam_params}'))
+        if slam_params_found:
+            actions.append(Node(
+                package='slam_toolbox', executable='sync_slam_toolbox_node',
+                name='slam_toolbox', output='screen', parameters=[slam_params]
+            ))
+        else:
+            actions.append(LogInfo(msg=f'slam_params.yaml not found at {slam_params}'))
 
     # ----- Nav2 velocity smoother -----
     actions.append(Node(
@@ -238,9 +244,12 @@ def _launch_setup(context, *args, **kwargs):
     if use_nav2:
         if nav2_params and os.path.exists(nav2_params):
             nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+            nav2_launch_args = {'use_sim_time': 'false', 'params_file': nav2_params}
+            if slam_params_found:
+                nav2_launch_args.update({'slam': 'True', 'slam_params_file': slam_params})
             actions.append(IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(os.path.join(nav2_bringup_dir, 'launch', 'bringup_launch.py')),
-                launch_arguments={'use_sim_time': 'false', 'params_file': nav2_params}.items()
+                launch_arguments=nav2_launch_args.items()
             ))
         else:
             actions.append(LogInfo(msg=f'Nav2 params file not found; expected at {nav2_params}'))

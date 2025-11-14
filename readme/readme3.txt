@@ -85,6 +85,14 @@ git push
 
 ./bringup_slam_stack.sh
 
+//Nav2 bringup (after bringup_slam_stack has sensors running)
+// Kill/skip the standalone slam_toolbox process above; Nav2 starts its own instance when slam:=true
+source /opt/ros/humble/setup.bash
+export FASTDDS_TRANSPORT_SHARED_MEM=off
+ros2 launch nav2_bringup bringup_launch.py use_sim_time:=false \
+  params_file:=~/Desktop/ros2_mapping_project/nav2_params.yaml \
+  slam:=true slam_params_file:=~/Desktop/ros2_mapping_project/slam_params.yaml &
+
 //wasd teleop
 
 python3 wasd_teleop_with_slam_reset.py
