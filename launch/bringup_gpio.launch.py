@@ -238,10 +238,18 @@ def _launch_setup(context, *args, **kwargs):
     if use_nav2:
         if nav2_params and os.path.exists(nav2_params):
             nav2_bringup_dir = get_package_share_directory('nav2_bringup')
-            actions.append(IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(os.path.join(nav2_bringup_dir, 'launch', 'bringup_launch.py')),
-                launch_arguments={'use_sim_time': 'false', 'params_file': nav2_params}.items()
-            ))
+            nav2_launch_file = os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
+            if os.path.exists(nav2_launch_file):
+                actions.append(IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(nav2_launch_file),
+                    launch_arguments={
+                        'use_sim_time': 'false',
+                        'params_file': nav2_params,
+                        'autostart': 'true',
+                    }.items()
+                ))
+            else:
+                actions.append(LogInfo(msg=f'nav2_bringup navigation_launch.py not found at {nav2_launch_file}'))
         else:
             actions.append(LogInfo(msg=f'Nav2 params file not found; expected at {nav2_params}'))
 

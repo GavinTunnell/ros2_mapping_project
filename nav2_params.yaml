@@ -246,7 +246,11 @@ local_costmap:
 map_server:
   ros__parameters:
     use_sim_time: false
-    yaml_filename: ""   # set if using a saved map
+    # Nav2's lifecycle manager expects map_server to load a map, even when
+    # slam_toolbox is providing the live /map topic.  We point it at a tiny
+    # placeholder map inside this package so the node can start cleanly; replace
+    # this with a saved map YAML once you have one from SLAM.
+    yaml_filename: "package://ros2_mapping_project/maps/empty_map.yaml"
 
 planner_server_rclcpp_node:
   ros__parameters:
@@ -267,3 +271,4 @@ bt_navigator_rclcpp_node:
 waypoint_follower_rclcpp_node:
   ros__parameters:
     use_sim_time: false
+
