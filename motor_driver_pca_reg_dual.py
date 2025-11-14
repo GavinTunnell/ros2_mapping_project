@@ -27,6 +27,7 @@ import time
 import smbus
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from geometry_msgs.msg import Twist
 
 # ---------- PCA9685 low-level ----------
@@ -131,6 +132,9 @@ class MotorDriverPCADual(Node):
         # Which side EnA drives (True=left)
         self.declare_parameter('map_enA_to_left', True)
 
+        # Command topic for Twist messages (teleop/Nav2)
+        self.declare_parameter('cmd_topic', '/cmd_vel')
+
         # I2C bus number (Jetson 40-pin I2C is usually bus 1)
         self.declare_parameter('i2c_bus', 1)
 
@@ -159,6 +163,9 @@ class MotorDriverPCADual(Node):
         self.inv_l     = bool(self.get_parameter('invert_left').value)
         self.mapA_left = bool(self.get_parameter('map_enA_to_left').value)
 
+        cmd_topic_param = self.get_parameter('cmd_topic').get_parameter_value().string_value
+        self.cmd_topic  = cmd_topic_param if cmd_topic_param else '/cmd_vel'
+
         busnum         = int(self.get_parameter('i2c_bus').value)
 
         # Init both PCA chips
@@ -178,11 +185,16 @@ class MotorDriverPCADual(Node):
         self._coast_side(self.right)
 
         # Subscriber
-        self.sub = self.create_subscription(Twist, '/cmd_vel', self.on_cmd, 10)
+        qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=10,
+        )
+        self.sub = self.create_subscription(Twist, self.cmd_topic, self.on_cmd, qos)
         self.get_logger().info(
             f"PCA A=0x{self.ena_addr:02X} (EnA={self.ena_ch}, In1={self.in1_ch}, In2={self.in2_ch}) | "
             f"PCA B=0x{self.enb_addr:02X} (EnB={self.enb_ch}, In3={self.in3_ch}, In4={self.in4_ch}) | "
-            f"freq={self.freq_hz}Hz min_duty={self.min_duty*100:.0f}%"
+            f"freq={self.freq_hz}Hz min_duty={self.min_duty*100:.0f}% | listening on '{self.cmd_topic}'"
         )
 
     # ----- side helpers -----
