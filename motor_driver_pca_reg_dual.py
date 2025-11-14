@@ -134,6 +134,9 @@ class MotorDriverPCADual(Node):
         # I2C bus number (Jetson 40-pin I2C is usually bus 1)
         self.declare_parameter('i2c_bus', 1)
 
+        # Command topic that feeds velocity commands (after twist_mux)
+        self.declare_parameter('cmd_topic', '/cmd_vel')
+
         # Read params
         ena_addr_str = self.get_parameter('ena_addr').get_parameter_value().string_value
         enb_addr_str = self.get_parameter('enb_addr').get_parameter_value().string_value
@@ -160,6 +163,8 @@ class MotorDriverPCADual(Node):
         self.mapA_left = bool(self.get_parameter('map_enA_to_left').value)
 
         busnum         = int(self.get_parameter('i2c_bus').value)
+        cmd_topic_param= self.get_parameter('cmd_topic').get_parameter_value().string_value
+        self.cmd_topic = cmd_topic_param if cmd_topic_param else '/cmd_vel'
 
         # Init both PCA chips
         self.pcaA = PCA9685LowLevel(busnum, self.ena_addr, self.freq_hz)
@@ -178,11 +183,11 @@ class MotorDriverPCADual(Node):
         self._coast_side(self.right)
 
         # Subscriber
-        self.sub = self.create_subscription(Twist, '/cmd_vel', self.on_cmd, 10)
+        self.sub = self.create_subscription(Twist, self.cmd_topic, self.on_cmd, 10)
         self.get_logger().info(
             f"PCA A=0x{self.ena_addr:02X} (EnA={self.ena_ch}, In1={self.in1_ch}, In2={self.in2_ch}) | "
             f"PCA B=0x{self.enb_addr:02X} (EnB={self.enb_ch}, In3={self.in3_ch}, In4={self.in4_ch}) | "
-            f"freq={self.freq_hz}Hz min_duty={self.min_duty*100:.0f}%"
+            f"freq={self.freq_hz}Hz min_duty={self.min_duty*100:.0f}% | cmd_topic={self.cmd_topic}"
         )
 
     # ----- side helpers -----

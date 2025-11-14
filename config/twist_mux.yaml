@@ -3,7 +3,7 @@ twist_mux:
   ros__parameters:
     topics:
       - name: nav2
-        topic: /cmd_vel_smoothed
+        topic: /cmd_vel
         timeout: 0.5
         priority: 50
       - name: avoid

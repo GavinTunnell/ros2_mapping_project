@@ -188,13 +188,6 @@ def _launch_setup(context, *args, **kwargs):
     else:
         actions.append(LogInfo(msg=f'slam_params.yaml not found at {slam_params}'))
 
-    # ----- Nav2 velocity smoother -----
-    actions.append(Node(
-        package='nav2_velocity_smoother', executable='velocity_smoother',
-        name='velocity_smoother', output='screen',
-        remappings=[('cmd_vel', '/cmd_vel'), ('cmd_vel_smoothed', '/cmd_vel_smoothed')]
-    ))
-
     # ----- twist_mux -----
     if twist_mux_config and os.path.exists(twist_mux_config):
         actions.append(Node(
@@ -239,8 +232,13 @@ def _launch_setup(context, *args, **kwargs):
         if nav2_params and os.path.exists(nav2_params):
             nav2_bringup_dir = get_package_share_directory('nav2_bringup')
             actions.append(IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(os.path.join(nav2_bringup_dir, 'launch', 'bringup_launch.py')),
-                launch_arguments={'use_sim_time': 'false', 'params_file': nav2_params}.items()
+                PythonLaunchDescriptionSource(os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')),
+                launch_arguments={
+                    'use_sim_time': 'false',
+                    'params_file': nav2_params,
+                    'autostart': 'true',
+                    'use_composition': 'False',
+                }.items()
             ))
         else:
             actions.append(LogInfo(msg=f'Nav2 params file not found; expected at {nav2_params}'))
