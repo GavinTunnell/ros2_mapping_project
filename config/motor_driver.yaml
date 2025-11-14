@@ -1,15 +1,18 @@
 motor_driver_node:
   ros__parameters:
+    cmd_topic: "/cmd_vel_out"
+    wheel_base: 0.24
+    max_speed_mps: 0.6
+    deadband_mps: 0.03
+    min_duty_pct: 20.0
+    pwm_freq_hz: 500.0
+    cmd_timeout_sec: 0.5
+    brake_on_stop: true
+    invert_left: false
+    invert_right: false
     ena: 15
     enb: 32
     in1: 23
     in2: 19
     in3: 21
     in4: 18
-    cmd_topic: "/cmd_vel"
-    pwm_freq_hz: 1000.0
-    min_duty_pct: 20.0
-    min_speed_enable: 0.01
-    brake_on_zero: true
-    invert_left: false
-    invert_right: false

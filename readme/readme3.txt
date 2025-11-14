@@ -85,6 +85,12 @@ git push
 
 ./bringup_slam_stack.sh
 
+//start Nav2 navigation servers once SLAM stack is publishing
+source /opt/ros/humble/setup.bash
+export FASTDDS_TRANSPORT_SHARED_MEM=off
+ros2 launch ros2_mapping_project nav2_minimal.launch.py \
+  params_file:=~/Desktop/ros2_mapping_project/nav2_params.yaml
+
 //wasd teleop
 
 python3 wasd_teleop_with_slam_reset.py

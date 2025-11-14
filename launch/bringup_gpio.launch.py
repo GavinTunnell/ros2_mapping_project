@@ -237,9 +237,8 @@ def _launch_setup(context, *args, **kwargs):
     # ----- Nav2 bringup -----
     if use_nav2:
         if nav2_params and os.path.exists(nav2_params):
-            nav2_bringup_dir = get_package_share_directory('nav2_bringup')
             actions.append(IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(os.path.join(nav2_bringup_dir, 'launch', 'bringup_launch.py')),
+                PythonLaunchDescriptionSource(os.path.join(share_dir, 'launch', 'nav2_minimal.launch.py')),
                 launch_arguments={'use_sim_time': 'false', 'params_file': nav2_params}.items()
             ))
         else:

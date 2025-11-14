@@ -12,6 +12,7 @@ setup(
         'imu_node',
         'encoders_node',
         'imu_twist_odom_node',
+        'motor_driver_node',
         'mapping_launch',
         'mapping_launch_no_imu',
     ],
