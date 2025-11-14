@@ -69,3 +69,22 @@ ros2 run robot_localization ekf_node --ros-args \
 
 source /opt/ros/humble/setup.bash
 rviz2
+
+//perform git push
+
+cd ~/Desktop/ros2_mapping_project
+git status
+git rev-parse --abbrev-ref HEAD         # expect: main
+git rev-parse --abbrev-ref @{u}         # expect: origin/main
+echo "# ping $(date)" >> .vscode_git_ping.txt
+git add .vscode_git_ping.txt
+git commit -m "Ping after reboot"
+git push
+
+//Runs Slam
+
+./bringup_slam_stack.sh
+
+//wasd teleop
+
+python3 wasd_teleop_with_slam_reset.py
