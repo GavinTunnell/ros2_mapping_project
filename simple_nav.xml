@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <!-- Single-goal navigation: compute a path and follow it -->
+    <Sequence name="NavigateToPoseSimple">
+      <ComputePathToPose goal="{goal}" path="{path}"/>
+      <FollowPath       path="{path}"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

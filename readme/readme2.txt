@@ -52,6 +52,15 @@ python3 encoders_node.py --ros-args \
 source /opt/ros/humble/setup.bash
 python3 wasd_teleop.py    # publishes to /cmd_vel
 
+
+
+
+
+./bringup_slam_stack.sh
+
+
+
+
  source /opt/ros/humble/setup.bash
 python3 motor_driver_pca_reg_dual.py --ros-args \
   -p ena_addr:="'0x41'" -p enb_addr:="'0x60'" \
@@ -60,6 +69,28 @@ python3 motor_driver_pca_reg_dual.py --ros-args \
   -p pwm_freq_hz:=1000.0 \
   -p max_lin:=0.8 -p max_ang_cmd:=1.2 -p deadband:=0.03 \
   -p min_duty_pct:=35.0 -p brake_on_zero:=false \
-  -p invert_right:=false -p invert_left:=true \
+  -p invert_right:=true -p invert_left:=false \
   -p map_enA_to_left:=true
+
+
+
+
+#run nav2_bringup
+
+cd ~/Desktop/ros2_mapping_project
+source /opt/ros/humble/setup.bash
+export FASTDDS_TRANSPORT_SHARED_MEM=off
+
+ros2 launch nav2_bringup navigation_launch.py \
+  use_sim_time:=false \
+  autostart:=true \
+  params_file:=/home/team4/Desktop/ros2_mapping_project/nav2_min.yaml
+
+
+
+
+
+
+
+
 [INFO] [1762304820.177712912] [motor_driver_pca_dual]: PCA A=0x41 (EnA=0, In1=1, In2=2) | PCA B=0x60 (EnB=0, In3=1, In4=2) | freq=1000.0Hz min_duty=35%

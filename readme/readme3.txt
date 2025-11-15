@@ -88,3 +88,7 @@ git push
 //wasd teleop
 
 python3 wasd_teleop_with_slam_reset.py
+
+//ROSBridge to Tablet
+
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
