@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from glob import glob
 import os
 
@@ -7,24 +7,15 @@ package_name = 'ros2_mapping_project'
 setup(
     name=package_name,
     version='0.0.1',
-    py_modules=[
-        'lidar_node',
-        'imu_node',
-        'encoders_node',
-        'imu_twist_odom_node',
-        'mapping_launch',
-        'mapping_launch_no_imu',
-    ],
+    packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        # Install launch files and other loose files to the package share dir
-        ('share/' + package_name, glob('*.py')),
-        ('share/' + package_name, glob('*.yaml')),
-        ('share/' + package_name + '/config', glob('config/*.yaml')),
-        ('share/' + package_name + '/launch', glob('launch/*.launch.py')),
-        ('share/' + package_name, glob('*.rviz')),
-        ('share/' + package_name, glob('tasks.json')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'description'), glob('description/*.urdf')),
+        (os.path.join('share', package_name), glob('*.yaml')),
+        (os.path.join('share', package_name), glob('*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -34,12 +25,10 @@ setup(
     license='BSD-3-Clause',
     entry_points={
         'console_scripts': [
-            'lidar_node = lidar_node:main',
-            'imu_node = imu_node:main',
-            'encoders_node = encoders_node:main',
-            'imu_twist_odom_node = imu_twist_odom_node:main',
-            'motor_driver_node = motor_driver_node:main',
-            'yolo_autofocus_servo = ros2_mapping_project.yolo_autofocus_servo_node:main',
+            'lidar_node = ros2_mapping_project.lidar_node:main',
+            'imu_node = ros2_mapping_project.imu_node:main',
+            'encoders_node = ros2_mapping_project.encoders_node:main',
+            'motor_driver_node = ros2_mapping_project.motor_driver_pca_reg_dual:main',
         ],
     },
 )

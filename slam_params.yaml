@@ -11,6 +11,9 @@ slam_toolbox:
     use_odometry: false           # use TF (odom->base_link) as initial guess
     use_scan_matching: true
 
+    laser_min_range: 0.2
+    laser_max_range: 12.0
+
     minimum_travel_distance: 0.03
     minimum_travel_rotation: 0.04
     minimum_time_interval: 0.05
