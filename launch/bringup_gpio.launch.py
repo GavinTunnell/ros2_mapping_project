@@ -99,14 +99,12 @@ def _launch_setup(context, *args, **kwargs):
         ))
     else:
         actions.append(Node(
-            package='sllidar_ros2', executable='sllidar_node',
-            name='sllidar_node', output='screen',
+            package='rplidar_ros', executable='rplidar_node',
+            name='rplidar_node', output='screen',
             parameters=[{
-                'channel_type': 'serial',
-                'serial_port': '/dev/ttyUSB0',
+                'serial_port': '/dev/rplidar',
                 'serial_baudrate': 115200,
                 'frame_id': 'laser',
-                'inverted': False,
                 'angle_compensate': True,
             }]
         ))
@@ -133,15 +131,6 @@ def _launch_setup(context, *args, **kwargs):
         }]
     ))
 
-    # ----- EKF (robot_localization) -----
-    if ekf_config and os.path.exists(ekf_config):
-        actions.append(Node(
-            package='robot_localization', executable='ekf_node',
-            name='ekf_filter_node', output='screen', parameters=[ekf_config]
-        ))
-    else:
-        actions.append(LogInfo(msg=f'ekf_config not found; expected at {ekf_config}'))
-
     # ----- Static TFs -----
     actions.extend([
         Node(package='tf2_ros', executable='static_transform_publisher',
@@ -150,14 +139,14 @@ def _launch_setup(context, *args, **kwargs):
              name='imu_base_tf',   arguments=['0','0','0.05','0','0','0','base_link','imu_link']),
     ])
 
-    # ----- SLAM toolbox -----
-    if os.path.exists(slam_params):
-        actions.append(Node(
-            package='slam_toolbox', executable='sync_slam_toolbox_node',
-            name='slam_toolbox', output='screen', parameters=[slam_params]
-        ))
-    else:
-        actions.append(LogInfo(msg=f'slam_params.yaml not found at {slam_params}'))
+    # ----- SLAM (EKF + SLAM Toolbox) -----
+    actions.append(IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(share_dir, 'launch', 'slam.launch.py')),
+        launch_arguments={
+            'ekf_config': ekf_config,
+            'slam_params_file': slam_params,
+        }.items(),
+    ))
 
     # ----- Nav2 velocity smoother -----
     actions.append(Node(
@@ -229,7 +218,7 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Feature toggles
-    ld.add_action(_declare_argument('use_internal_lidar', 'false', 'Use the custom lidar_node instead of sllidar_ros2.'))
+    ld.add_action(_declare_argument('use_internal_lidar', 'false', 'Use the custom lidar_node instead of rplidar_ros.'))
     ld.add_action(_declare_argument('use_motor_driver', 'true',  'Launch the GPIO motor driver node.'))
     ld.add_action(_declare_argument('use_nav2', 'true', 'Start the Nav2 bringup launch file.'))
     ld.add_action(_declare_argument('use_teleop', 'false', 'Start teleop_twist_keyboard for manual control.'))
