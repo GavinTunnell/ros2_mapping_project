@@ -26,8 +26,6 @@ def _launch_setup(context, *args, **kwargs):
 
     # ----- Feature toggles -----
     use_internal_lidar      = _as_bool(LaunchConfiguration('use_internal_lidar').perform(context))
-    use_imu_velocity        = _as_bool(LaunchConfiguration('use_imu_velocity').perform(context))
-    use_diff_drive_odometry = _as_bool(LaunchConfiguration('use_diff_drive_odometry').perform(context))
     use_motor_driver        = _as_bool(LaunchConfiguration('use_motor_driver').perform(context))
     use_nav2                = _as_bool(LaunchConfiguration('use_nav2').perform(context))
     use_teleop              = _as_bool(LaunchConfiguration('use_teleop').perform(context))
@@ -123,11 +121,6 @@ def _launch_setup(context, *args, **kwargs):
             remappings=[('/imu/data_raw', '/imu/raw'), ('/imu/data', '/imu/data')]
         ),
     ])
-    if use_imu_velocity:
-        actions.append(Node(
-            package=package_name, executable='imu_twist_odom_node',
-            name='imu_twist_odom_node', output='screen'
-        ))
 
     # ----- Encoders -----
     actions.append(Node(
@@ -140,33 +133,11 @@ def _launch_setup(context, *args, **kwargs):
         }]
     ))
 
-    # ----- Optional external diff-drive odom from ticks -----
-    if use_diff_drive_odometry:
-        ticks_per_meter = tpr / (2.0 * math.pi * r)
-        actions.append(Node(
-            package=LaunchConfiguration('diff_drive_package').perform(context),
-            executable=LaunchConfiguration('diff_drive_executable').perform(context),
-            name='diff_drive_odometry', output='screen',
-            parameters=[{
-                'ticks_per_meter': ticks_per_meter,
-                'wheel_separation': L, 'base_frame_id': 'base_link',
-                'odom_frame_id': 'odom', 'rate': 50.0,
-            }],
-            remappings=[
-                ('/diff_drive/odom', '/wheel_odom'),
-                ('/diff_drive/lwheel_ticks', '/left_wheel/ticks'),
-                ('/diff_drive/rwheel_ticks', '/right_wheel/ticks'),
-            ]
-        ))
-
     # ----- EKF (robot_localization) -----
     if ekf_config and os.path.exists(ekf_config):
-        ekf_params = [ekf_config]
-        if use_imu_velocity:
-            ekf_params.append({'twist0': '/imu_odom'})
         actions.append(Node(
             package='robot_localization', executable='ekf_node',
-            name='ekf_filter_node', output='screen', parameters=ekf_params
+            name='ekf_filter_node', output='screen', parameters=[ekf_config]
         ))
     else:
         actions.append(LogInfo(msg=f'ekf_config not found; expected at {ekf_config}'))
@@ -252,15 +223,13 @@ def generate_launch_description():
     package_name = 'ros2_mapping_project'
     share_dir = get_package_share_directory(package_name)
 
-    default_ekf       = os.path.join(share_dir, 'config', 'ekf.yaml')
+    default_ekf       = os.path.join(share_dir, 'odom_params.yaml')
     default_twist_mux = os.path.join(share_dir, 'config', 'twist_mux.yaml')
 
     ld = LaunchDescription()
 
     # Feature toggles
     ld.add_action(_declare_argument('use_internal_lidar', 'false', 'Use the custom lidar_node instead of sllidar_ros2.'))
-    ld.add_action(_declare_argument('use_imu_velocity', 'true',  'Fuse IMU-derived velocity (/imu_odom) into the EKF.'))
-    ld.add_action(_declare_argument('use_diff_drive_odometry', 'false', 'Enable external diff-drive odometry node.'))
     ld.add_action(_declare_argument('use_motor_driver', 'true',  'Launch the GPIO motor driver node.'))
     ld.add_action(_declare_argument('use_nav2', 'true', 'Start the Nav2 bringup launch file.'))
     ld.add_action(_declare_argument('use_teleop', 'false', 'Start teleop_twist_keyboard for manual control.'))
@@ -282,9 +251,6 @@ def generate_launch_description():
     ld.add_action(_declare_argument('right_A_pin', '7',  'BOARD pin number for the right encoder phase A.'))
     ld.add_action(_declare_argument('right_B_pin', '11', 'BOARD pin number for the right encoder phase B.'))
 
-    # External diff drive package/exe (only used if toggle above is true)
-    ld.add_action(_declare_argument('diff_drive_package',   'diff_drive',          'Package providing the diff_drive_odometry executable.'))
-    ld.add_action(_declare_argument('diff_drive_executable','diff_drive_odometry', 'Executable that publishes odometry from encoder ticks.'))
 
     # Motor driver parameters
     ld.add_action(_declare_argument('motor_driver_package',    package_name, 'Package name for the GPIO motor driver node.'))
@@ -293,7 +259,7 @@ def generate_launch_description():
     ld.add_action(_declare_argument('max_speed_mps',  '0.6',  'Speed corresponding to 100% duty.'))
     ld.add_action(_declare_argument('deadband_mps',   '0.03', 'Below this speed, output 0 duty.'))
     ld.add_action(_declare_argument('pwm_freq_hz',    '500',  'PWM frequency (Hz).'))
-    ld.add_action(_declare_argument('duty_min',       '15.0', 'Minimum duty to overcome stiction.'))
+    ld.add_action(_declare_argument('duty_min',       '22.0', 'Minimum duty to overcome stiction.'))
     ld.add_action(_declare_argument('left_invert',    'false','Invert left direction.'))
     ld.add_action(_declare_argument('right_invert',   'false','Invert right direction.'))
     ld.add_action(_declare_argument('brake_on_stop',  'true', 'Active brake (both highs) instead of coast on stop.'))

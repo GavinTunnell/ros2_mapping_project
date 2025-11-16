@@ -87,7 +87,10 @@ ros2 launch nav2_bringup navigation_launch.py \
   params_file:=/home/team4/Desktop/ros2_mapping_project/nav2_min.yaml
 
 
+#camera approach code
 
+export FASTDDS_TRANSPORT_SHARED_MEM=off
+python3 enemy_approach_node.py
 
 
 

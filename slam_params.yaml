@@ -8,7 +8,7 @@ slam_toolbox:
 
     provide_odom_frame: false    # EKF publishes odom->base_link
     publish_tf: true             # SLAM publishes map->odom
-    use_odometry: true           # use TF (odom->base_link) as initial guess
+    use_odometry: false           # use TF (odom->base_link) as initial guess
     use_scan_matching: true
 
     minimum_travel_distance: 0.03

@@ -39,6 +39,18 @@ python3 imu_bno055_smbus.py --ros-args \
 IMU_PID=$!
 
 ###############################
+# 3b. IMU Filter (/imu/raw -> /imu/data)
+###############################
+echo "[bringup] Starting IMU filter..."
+ros2 run imu_filter_madgwick imu_filter_madgwick_node --ros-args \
+  --params-file "$(pwd)/imu_filter_params.yaml" \
+  -p use_mag:=false \
+  -p publish_tf:=false \
+  -r /imu/data_raw:=/imu/raw \
+  -r /imu/data:=/imu/data &
+IMU_FILTER_PID=$!
+
+###############################
 # 4. Encoders -> /wheel_twist
 ###############################
 echo "[bringup] Starting encoders node..."
@@ -58,7 +70,7 @@ ENC_PID=$!
 echo "[bringup] Starting EKF (robot_localization)..."
 ros2 run robot_localization ekf_node --ros-args \
   -r __node:=ekf_filter_node \
-  --params-file "$(pwd)/config/ekf.yaml" &
+  --params-file "$(pwd)/odom_params.yaml" &
 EKF_PID=$!
 
 ###############################
@@ -84,6 +96,7 @@ echo "    TF laser   = $TF_LASER_PID"
 echo "    TF imu     = $TF_IMU_PID"
 echo "    RPLidar    = $RPLIDAR_PID"
 echo "    IMU        = $IMU_PID"
+echo "    IMU Filter = $IMU_FILTER_PID"
 echo "    Encoders   = $ENC_PID"
 echo "    EKF        = $EKF_PID"
 echo "    SLAM       = $SLAM_PID"
