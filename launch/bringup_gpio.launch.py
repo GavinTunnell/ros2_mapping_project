@@ -189,7 +189,8 @@ def _launch_setup(context, *args, **kwargs):
                 'max_speed_mps': float(max_speed_mps or 0.6),
                 'deadband_mps':  float(deadband_mps or 0.03),
                 'pwm_freq_hz':   int(pwm_freq_hz or 500),
-                'duty_min':      float(duty_min or 15.0),
+                'duty_min':      float(duty_min or 30.0),
+                'duty_min_turn': float(LaunchConfiguration('duty_min_turn').perform(context) or 75.0),
                 'left_invert':   _as_bool(left_invert or 'false'),
                 'right_invert':  _as_bool(right_invert or 'false'),
                 'brake_on_stop': _as_bool(brake_on_stop or 'true'),
@@ -259,7 +260,8 @@ def generate_launch_description():
     ld.add_action(_declare_argument('max_speed_mps',  '0.6',  'Speed corresponding to 100% duty.'))
     ld.add_action(_declare_argument('deadband_mps',   '0.03', 'Below this speed, output 0 duty.'))
     ld.add_action(_declare_argument('pwm_freq_hz',    '500',  'PWM frequency (Hz).'))
-    ld.add_action(_declare_argument('duty_min',       '15.0', 'Minimum duty to overcome stiction.'))
+    ld.add_action(_declare_argument('duty_min',       '30.0', 'Minimum duty for straight motion.'))
+    ld.add_action(_declare_argument('duty_min_turn',  '75.0', 'Minimum duty for turning in place.'))
     ld.add_action(_declare_argument('left_invert',    'false','Invert left direction.'))
     ld.add_action(_declare_argument('right_invert',   'false','Invert right direction.'))
     ld.add_action(_declare_argument('brake_on_stop',  'true', 'Active brake (both highs) instead of coast on stop.'))

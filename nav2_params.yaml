@@ -98,7 +98,7 @@ controller_server:
       desired_linear_vel: 0.4
       min_linear_vel: 0.05
       max_angular_vel: 1.5
-      min_angular_vel: 0.1
+      min_angular_vel: 0.4
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.8
@@ -124,7 +124,7 @@ bt_navigator:
     robot_base_frame: "base_link"
     odom_topic: "odom"
     transform_tolerance: 0.2
-    default_server_timeout: 20
+    default_server_timeout: 30
     wait_for_service_timeout: 5
     bt_loop_duration: 10
     goal_reached_tol: 0.05

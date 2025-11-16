@@ -120,6 +120,7 @@ class MotorDriverPCADual(Node):
         # Control params
         self.declare_parameter('pwm_freq_hz', 1000.0)
         self.declare_parameter('min_duty_pct', 35.0)   # %
+        self.declare_parameter('min_duty_turn_pct', 75.0) # % for turn-in-place
         self.declare_parameter('deadband', 0.03)       # normalized
         self.declare_parameter('max_lin', 0.8)         # m/s (for normalization)
         self.declare_parameter('max_ang_cmd', 1.2)     # rad/s that maps to full turn
@@ -154,6 +155,7 @@ class MotorDriverPCADual(Node):
 
         self.freq_hz   = float(self.get_parameter('pwm_freq_hz').value)
         self.min_duty  = float(self.get_parameter('min_duty_pct').value) / 100.0
+        self.min_duty_turn = float(self.get_parameter('min_duty_turn_pct').value) / 100.0
         self.deadband  = float(self.get_parameter('deadband').value)
         self.max_lin   = float(self.get_parameter('max_lin').value)
         self.max_ang   = float(self.get_parameter('max_ang_cmd').value)
@@ -245,14 +247,19 @@ class MotorDriverPCADual(Node):
         peak = max(1.0, abs(r), abs(l))
         r /= peak; l /= peak
 
-        def map_duty(x):
+        # Detect turn-in-place
+        is_turn_in_place = abs(vx) < self.deadband and abs(wz) > 0
+
+        def map_duty(x, is_turn):
             ax = abs(x)
             if ax < self.deadband:
                 return 0.0, True
-            return max(self.min_duty, ax), False
 
-        duty_r, off_r = map_duty(r)
-        duty_l, off_l = map_duty(l)
+            min_d = self.min_duty_turn if is_turn else self.min_duty
+            return max(min_d, ax), False
+
+        duty_r, off_r = map_duty(r, is_turn_in_place)
+        duty_l, off_l = map_duty(l, is_turn_in_place)
 
         # Apply inversion flags
         dir_r = (r >= 0.0)
