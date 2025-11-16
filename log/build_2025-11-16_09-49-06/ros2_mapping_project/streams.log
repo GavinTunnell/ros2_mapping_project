@@ -1,0 +1,65 @@
+[1.543s] Invoking command in '/home/team4/Desktop/ros2_mapping_project': PYTHONPATH=/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/ros2_mapping_project build --build-base /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build install --record /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/install.log --single-version-externally-managed install_data
+[2.160s] running egg_info
+[2.161s] creating build/ros2_mapping_project/ros2_mapping_project.egg-info
+[2.162s] writing build/ros2_mapping_project/ros2_mapping_project.egg-info/PKG-INFO
+[2.163s] writing dependency_links to build/ros2_mapping_project/ros2_mapping_project.egg-info/dependency_links.txt
+[2.164s] writing entry points to build/ros2_mapping_project/ros2_mapping_project.egg-info/entry_points.txt
+[2.164s] writing requirements to build/ros2_mapping_project/ros2_mapping_project.egg-info/requires.txt
+[2.164s] writing top-level names to build/ros2_mapping_project/ros2_mapping_project.egg-info/top_level.txt
+[2.164s] writing manifest file 'build/ros2_mapping_project/ros2_mapping_project.egg-info/SOURCES.txt'
+[2.169s] reading manifest file 'build/ros2_mapping_project/ros2_mapping_project.egg-info/SOURCES.txt'
+[2.171s] writing manifest file 'build/ros2_mapping_project/ros2_mapping_project.egg-info/SOURCES.txt'
+[2.172s] running build
+[2.172s] running build_py
+[2.172s] creating /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build
+[2.173s] creating /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib
+[2.173s] creating /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project
+[2.173s] copying ros2_mapping_project/motor_driver_pca_reg_dual.py -> /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project
+[2.175s] copying ros2_mapping_project/encoders_node.py -> /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project
+[2.175s] copying ros2_mapping_project/lidar_node.py -> /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project
+[2.177s] copying ros2_mapping_project/imu_node.py -> /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project
+[2.177s] copying ros2_mapping_project/__init__.py -> /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project
+[2.178s] running install
+[2.181s] running install_lib
+[2.182s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project
+[2.182s] copying /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project/motor_driver_pca_reg_dual.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project
+[2.183s] copying /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project/encoders_node.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project
+[2.183s] copying /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project/lidar_node.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project
+[2.183s] copying /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project/imu_node.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project
+[2.184s] copying /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build/lib/ros2_mapping_project/__init__.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project
+[2.185s] byte-compiling /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project/motor_driver_pca_reg_dual.py to motor_driver_pca_reg_dual.cpython-310.pyc
+[2.189s] byte-compiling /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project/encoders_node.py to encoders_node.cpython-310.pyc
+[2.194s] byte-compiling /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project/lidar_node.py to lidar_node.cpython-310.pyc
+[2.196s] byte-compiling /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project/imu_node.py to imu_node.cpython-310.pyc
+[2.199s] byte-compiling /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project/__init__.py to __init__.cpython-310.pyc
+[2.199s] running install_data
+[2.199s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ament_index
+[2.199s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ament_index/resource_index
+[2.200s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ament_index/resource_index/packages
+[2.200s] copying resource/ros2_mapping_project -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ament_index/resource_index/packages
+[2.201s] copying package.xml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.201s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/launch
+[2.201s] copying launch/slam.launch.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/launch
+[2.202s] copying launch/bringup_gpio.launch.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/launch
+[2.205s] copying launch/nav2_navigation.launch.py -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/launch
+[2.205s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/config
+[2.205s] copying config/motor_driver.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/config
+[2.205s] copying config/twist_mux.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/config
+[2.205s] creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project/description
+[2.206s] copying odom_params.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.206s] copying imu_filter_params.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.207s] copying slam_params.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.207s] copying nav2_params.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.207s] copying slam_params_no_ekf.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.208s] copying nav2_min.yaml -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.209s] copying slam.rviz -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.209s] copying nav2_fixed.rviz -> /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/share/ros2_mapping_project
+[2.211s] running install_egg_info
+[2.219s] Copying build/ros2_mapping_project/ros2_mapping_project.egg-info to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2_mapping_project-0.0.1-py3.10.egg-info
+[2.219s] running install_scripts
+[2.272s] Installing encoders_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.273s] Installing imu_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.274s] Installing lidar_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.275s] Installing motor_driver_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.279s] writing list of installed files to '/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/install.log'
+[2.381s] Invoked command in '/home/team4/Desktop/ros2_mapping_project' returned '0': PYTHONPATH=/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/ros2_mapping_project build --build-base /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build install --record /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/install.log --single-version-externally-managed install_data

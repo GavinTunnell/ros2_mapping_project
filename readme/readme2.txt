@@ -68,12 +68,12 @@ python3 motor_driver_pca_reg_dual.py --ros-args \
   -p enb_channel:=0 -p in3_channel:=1 -p in4_channel:=2 \
   -p pwm_freq_hz:=1000.0 \
   -p max_lin:=0.8 -p max_ang_cmd:=1.2 -p deadband:=0.03 \
-  -p min_duty_pct:=35.0 -p brake_on_zero:=false \
+  -p min_duty_pct:=80.0 -p brake_on_zero:=false \
   -p invert_right:=true -p invert_left:=false \
   -p map_enA_to_left:=true
 
 
-
+./bringup_slam_stack.sh
 
 #run nav2_bringup
 

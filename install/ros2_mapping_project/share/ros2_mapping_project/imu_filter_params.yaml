@@ -1,0 +1,11 @@
+imu_filter_madgwick:
+  ros__parameters:
+    use_mag: false
+    publish_tf: false
+    world_frame: enu
+    fixed_frame: imu_link
+    # tuning
+    gain: 0.1
+    zeta: 0.0
+    # topics
+    imu_frame: imu_link
