@@ -1,0 +1,23 @@
+slam_toolbox:
+  ros__parameters:
+    mode: mapping
+    scan_topic: /scan
+    map_frame: map
+    base_frame: base_link
+    odom_frame: odom
+
+    provide_odom_frame: false    # EKF publishes odom->base_link
+    publish_tf: true             # SLAM publishes map->odom
+    use_odometry: false           # use TF (odom->base_link) as initial guess
+    use_scan_matching: true
+
+    laser_min_range: 0.2
+    laser_max_range: 12.0
+
+    minimum_travel_distance: 0.03
+    minimum_travel_rotation: 0.04
+    minimum_time_interval: 0.05
+    resolution: 0.05
+    map_publish_period: 0.2
+    transform_publish_period: 0.05
+    queue_size: 500

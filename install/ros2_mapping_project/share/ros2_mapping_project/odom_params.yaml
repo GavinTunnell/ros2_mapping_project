@@ -1,0 +1,39 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 50.0
+    two_d_mode: true
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # IMU: use yaw (orientation.z) + yaw rate (angular_velocity.z)
+    imu0: /imu/data
+    imu0_config: [
+      false, false, false,    # x y z
+      false, false, true,     # roll pitch yaw
+      false, false, false,    # vx vy vz
+      false, false, true,     # vroll vpitch vyaw   <- gyro z
+      false, false, false     # ax ay az
+    ]
+    imu0_differential: false
+    imu0_remove_gravitational_acceleration: true
+    imu0_queue_size: 50
+
+    # Encoders -> vx, wz (TwistWithCovarianceStamped, frame_id=base_link)
+    twist0: /wheel_twist
+    twist0_config: [
+      false, false, false,    # x y z
+      false, false, false,    # roll pitch yaw
+      true,  false, false,    # vx vy vz           <- vx
+      false, false, true,     # vroll vpitch vyaw  <- wz
+      false, false, false     # ax ay az
+    ]
+    twist0_queue_size: 50
+    twist0_nodelay: true
+    twist0_differential: false
+    twist0_relative: false
+
+    sensor_timeout: 0.2
+    print_diagnostics: true

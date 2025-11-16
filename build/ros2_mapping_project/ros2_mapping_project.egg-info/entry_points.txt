@@ -1,0 +1,5 @@
+[console_scripts]
+encoders_node = ros2_mapping_project.encoders_node:main
+imu_node = ros2_mapping_project.imu_node:main
+lidar_node = ros2_mapping_project.lidar_node:main
+motor_driver_node = ros2_mapping_project.motor_driver_pca_reg_dual:main

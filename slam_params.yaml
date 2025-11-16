@@ -21,3 +21,29 @@ slam_toolbox:
     map_publish_period: 0.2
     transform_publish_period: 0.05
     queue_size: 500
+
+    # New parameters to improve map quality and prevent overlap
+    solver_plugin: "solver_plugins::CeresSolver"
+
+    # Scan Matcher Parameters
+    scan_matcher_params:
+      ceres_scan_matcher:
+        use_nonmonotonic_steps: true
+        max_num_iterations: 20
+        num_threads: 1
+      translation_weight: 10.0
+      rotation_weight: 40.0
+
+    # Map Update Parameters
+    map_update_rate: 5.0
+    map_update_distance_thresh: 0.4
+    map_update_angle_thresh: 0.9
+
+    # Loop Closure Parameters
+    loop_closure_minimum_scan_period: 0.5
+    loop_closure_search_radius: 5.0
+
+    # Correlation parameters
+    correlation_search_space_dimension: 0.2
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.1
