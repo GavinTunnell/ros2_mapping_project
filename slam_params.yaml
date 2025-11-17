@@ -6,17 +6,19 @@ slam_toolbox:
     base_frame: base_link
     odom_frame: odom
 
-    provide_odom_frame: true    # EKF publishes odom->base_link
+    provide_odom_frame: false    # EKF publishes odom->base_link
     publish_tf: true             # SLAM publishes map->odom
 
-    # For now: NO odom in SLAM, just scan matching
+    # Set to false to use the TF from odom->base_link as an initial guess for scan matching.
+    # This is the recommended setting when using an external odometry source like the EKF.
+    # Set to true if you want to subscribe to an odometry topic directly.
     use_odometry: false
     use_scan_matching: true
 
-    # Correct RPLidar limits + no throttling
-    minimum_laser_range: 0.2     # meters
-    maximum_laser_range: 12.0    # meters
-    throttle_scans: 1            # use every scan
+    # Laser range is critical. Set to match your sensor's capabilities.
+    # RPLidar A1/A2 is ~0.2m to ~12.0m.
+    laser_min_range: 0.2
+    laser_max_range: 12.0
 
     minimum_travel_distance: 0.03
     minimum_travel_rotation: 0.04

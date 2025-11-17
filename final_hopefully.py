@@ -66,7 +66,7 @@ class PCA9685LowLevel:
             # fully off
             self.set_pwm_raw(channel, 0, 0)
         elif duty >= 1.0:
-            # fully on (use ON=0x1000 trick or set OFF=0)
+            # fully on
             self.set_pwm_raw(channel, 0, 4095)
         else:
             off = int(round(duty * 4095))
@@ -126,44 +126,49 @@ cv2.namedWindow(WIN, cv2.WINDOW_AUTOSIZE)
 times = collections.deque(maxlen=60)
 prev  = time.time()
 
-#State 1 variables
-focuser = Focuser(bus=9)
+# ---------- State variables ----------
+focuser = Focuser(bus=10)
+
+# State 1 variables
 state = 1
 focus_pos = 300           
 conf_max = 0.0
-servo_offset = 20        #Adjust servo offset if needed
+servo_offset = 0        #Adjust servo offset if needed
 acquiring = True
 object_detected = False  #Object detection fields
-angle = 30
+angle = 40
 batch_conf = []  
 
-#State 2 variables
-focus_positions = list(range(750, 0, -50))  # all focus positions to scan
+# State 2 variables
+focus_positions = list(range(650, 0, -50))  # [750, 700, ..., 50]
 current_index = 0
+ideal_focus = 300
+object_detected_once = False
 
-#State 3 Variables
+# State 3 Variables
 acquire_tol = 150          # px: stay in sweep until |error| <= this
 track_tol   = 10           # px: no movement if within this band (deadband)
 direction = 1
 
-#State 4 Variables
+# State 4 Variables
 past_conf = 0.0
 error = .30  
+A = 5  # focus step size (change if you want faster/slower focus sweeps)
 
-#State 5 Variables
-CENTER_MIN = 20
-CENTER_MAX = 150
+# State 5 Variables
+CENTER_MIN = 0
+CENTER_MAX = 180
 px_cushion   = 30          # cushion in pixels around image center
 slow_step    = 0.5         # degrees per nudge to keep motion slow
 
-#State 6 Variables
+# State 6 Variables
 laser_toggle_count = 0
 
 #Intialize motors for nav2
 sit_down_bitch(1)
 
 #Sets initial servo position
-duty=angle_to_duty(angle+20)
+duty = angle_to_duty(angle)
 pca.set_pwm_duty(0, duty)
 
 time.sleep(1)
@@ -198,10 +203,10 @@ try:
             else:
                 batch_conf.append(0.0)
 
-        # --- existing top-conf x_center in pixels (kept) ---
+        # top-conf x_center in pixels
         x_center = float(r.boxes.xywh[r.boxes.conf.argmax(), 0]) if len(r.boxes) > 0 else None
 
-        # >>> ADDED: get normalized center for TOY SOLDIER (prefer), else top-conf box
+        # normalized center for TOY SOLDIER (prefer), else top-conf box
         x_center_n = None
         
         if len(r.boxes) > 0:
@@ -224,22 +229,29 @@ try:
 
                 x_center_n = float(xywhn[target_idx, 0])  # normalized 0..1
             except Exception:
-                # robust fallback if any attribute missing
                 if x_center is not None and frame_width > 0:
                     x_center_n = float(x_center / frame_width)
 
-        annotated = results[0].plot()  # or use frame_bgr to avoid plot() cost
-        cv2.imshow(WIN, annotated)     # always refresh the window 
-            
-        # These are the processes that will run every frame
-        if(state == 1):
+        annotated = results[0].plot()
+        cv2.imshow(WIN, annotated)
+
+        # IMPORTANT: let OpenCV process GUI events
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
+            break
+        
+        # ---------- Per-frame state logic ----------
+        if state == 1:
             acquiring = True
-            if angle > 150:
-                angle = 150                 #This state will run every frame and rotate the servo from 30-150 degrees sonsistently at speed of 1 degree per frame
+            if angle > 180:
+                angle = 180
                 direction = -1              
-            elif angle < 30:
-                angle = 30
+            elif angle < 40:
+                angle = 40
                 direction = 1
+
+            # sweep
+            angle += 1 * direction
 
             duty = angle_to_duty(angle + servo_offset)
             pca.set_pwm_duty(0, duty)
@@ -247,27 +259,28 @@ try:
             if object_detected:
                 state = 2
 
-        if (state == 3):
+        if state == 3:
             if x_center is not None:
                 error_pixels = center_x - x_center  # + => target left of center
 
-                # Stay in sweep until target is closer to the middle
                 if acquiring and abs(error_pixels) > acquire_tol:
                     # keep sweeping in the current direction
                     angle += 1 * direction
                 else:
-                    # switch to tracking with deadband + proportional step
                     acquiring = False
                     if abs(error_pixels) > track_tol:
-                        state = 4  # switch to tracking state
+                        state = 4  # switch to fine-tracking state
             else:
                 acquiring = True
                 angle += 1 * direction
+                
+            duty = angle_to_duty(angle + servo_offset)
+            pca.set_pwm_duty(0, duty)
         
-        if (state ==5):
+        if state == 5:
             if x_center_n is not None and frame_width > 0:
                 margin_n = float(px_cushion) / float(frame_width)
-                # nudge slowly toward the center without using proportional error
+                # nudge slowly toward the center
                 if x_center_n < (0.5 - margin_n):
                     angle += slow_step     # target is left in image → turn left
                 elif x_center_n > (0.5 + margin_n):
@@ -277,39 +290,44 @@ try:
                     angle = CENTER_MAX
                 elif angle < CENTER_MIN:
                     angle = CENTER_MIN
-            else:
-                # no detection → optional: keep your existing sweep behavior via state logic below
-                pass
+            # if no detection, just hold current angle
             duty = angle_to_duty(angle + servo_offset)
             pca.set_pwm_duty(0, duty)
         
-        if current_time - prev >= .25:  # These are the processes that will run every 0.25 seconds
+        # ---------- 0.25 s logic ----------
+        if current_time - prev >= .25:
             batch_max_conf = np.mean(batch_conf) if batch_conf else 0.0
             if np.isnan(batch_max_conf) or batch_max_conf < 0.5:
                 batch_max_conf = 0.0
-            # last_seen_timestamp and related timing logic removed
 
-            if (state == 1):
+            if state == 1:
                 if batch_max_conf >= 0.5:
                     focus_pos = 750
                     object_detected = True
                     acquiring = True
                     sit_down_bitch(0)
-                    print(f"Object detected with confidence {conf_max:.2f}, switching to state {state}, for focusing.")
+                    print(f"Object detected with confidence {batch_max_conf:.2f}, switching to state 1→2 for focusing.")
+                    state = 2
+                    current_index = 0
+                    conf_max = 0.0
+                    ideal_focus = focus_pos
 
-            if (state == 2): #Autofocus State
-
-                if (batch_max_conf >= conf_max):
+            if state == 2:  # Autofocus sweep state
+                if batch_max_conf >= conf_max:
                     conf_max = batch_max_conf
                     ideal_focus = focus_pos
                     print(f"New ideal focus: {ideal_focus} with conf: {conf_max}")
 
+                # move to next focus position safely
+                current_index += 1
                 if current_index >= len(focus_positions):
-                    if (conf_max < .5):
+                    # finished full sweep
+                    if conf_max < 0.5:
                         object_detected_once = False
                         focus_pos = 300
                         current_index = 0
                         state = 1
+                        print("Sweep done, low confidence. Returning to scan.")
                     else:
                         object_detected_once = False
                         focus_pos = ideal_focus
@@ -319,57 +337,62 @@ try:
                         )
                         current_index = 0
                         state = 3
-
-                current_index += 1
-                focus_pos = focus_positions[current_index]
+                else:
+                    focus_pos = focus_positions[current_index]
 
             focuser.set(Focuser.OPT_FOCUS, focus_pos)
 
-            if (state == 4):
+            if state == 4:
                 print(state)
                 focus_pos -= A
                 if batch_max_conf <= past_conf - 0.01:
-                    A = A * -1
+                    A = -A
                     print(f"Reversing direction at focus: {focus_pos} with conf: {batch_max_conf}")
-                if (batch_max_conf < (past_conf - (past_conf * error))):
+                if batch_max_conf < (past_conf - (past_conf * error)):
                     state = 1
                     focus_pos = 300
                     conf_max = 0
                     ideal_focus = 0
-                    print(f"Cannot find object returning to scan: Focus :{ideal_focus} with conf: {past_conf}")
-                if (batch_max_conf >= past_conf and batch_max_conf >= 0.5):
+                    print(f"Cannot refine focus, returning to scan. Last good conf: {past_conf}")
+                if batch_max_conf >= past_conf and batch_max_conf >= 0.5:
                     state = 5
                     print(f"Object in focus with sufficient confidence. Holding focus at: {focus_pos} with conf: {batch_max_conf}")
             
-            if (state ==5):
+            if state == 5:
+                # dwell here some time before firing laser
                 laser_toggle_count += 1
-                if laser_toggle_count > 16:
+                if laser_toggle_count > 16:  # ~4 s at 0.25s per tick
                     laser_toggle_count = 0
                     state = 6
 
-            if (state ==6):
-                print(state)
-                current_state = GPIO.input(SERVO_PIN)
-                GPIO.output(SERVO_PIN, GPIO.HIGH)
+            if state == 6:
+                # LASER ON window
+                if laser_toggle_count == 0:
+                    GPIO.output(SERVO_PIN, GPIO.HIGH)  # turn laser ON once
                 laser_toggle_count += 1
-                if laser_toggle_count >= 40: 
+                print(6)
+                if laser_toggle_count >= 40:  # ~10 s ON time
+                    GPIO.output(SERVO_PIN, GPIO.LOW)   # turn laser OFF
                     laser_toggle_count = 0
-                    GPIO.output(SERVO_PIN, GPIO.LOW)   
                     state = 7
 
-            if (state == 7):
+            if state == 7:
+                # cool-down / re-enable motors, keep laser OFF
                 laser_toggle_count += 1
-                sit_down_bitch(1)
-                if laser_toggle_count >= 40:
+                sit_down_bitch(1)  # re-enable motors
+                if laser_toggle_count >= 40:  # ~10 s cool-down
                     focus_pos = 300
                     laser_toggle_count = 0
-                    GPIO.output(SERVO_PIN, GPIO.HIGH)   
+                    GPIO.output(SERVO_PIN, GPIO.LOW)   # ensure laser stays OFF
                     state = 1
                     conf_max = 0.0
                     acquiring = True
-                    object_detected = False  #Object detection fields
+                    object_detected = False
                     angle = 30
-                    
+
+            # update past_conf for next tick (used in state 4)
+            past_conf = batch_max_conf
+
             prev = current_time
             batch_conf.clear()
 

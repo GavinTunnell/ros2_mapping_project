@@ -8,17 +8,15 @@ Behavior summary:
       * Servo sweeps 30° ↔ 150°.
       * Autofocus sweeps.
   - ALIGN_COUPLED (on first detection):
-      * Start at current servo angle.
+      * Start from the angle where detection happened.
       * Servo slowly pans toward EXACTLY 90° (servo_center_deg).
       * While servo is moving, rover rotates in the opposite direction
-        at a fixed speed (turn_speed_coupled).
+        at a fixed speed (turn_speed_coupled = 0.8 rad/s).
       * When servo reaches 90° (within small tol), snap to 90° and go to DRIVE.
   - DRIVE:
       * Servo held at 90°.
       * Rover drives forward (forward_speed ≥ 0.35 m/s) using bbox x-error to
-        adjust angular velocity. Turning uses a boost:
-          - Turn start/direction change → spike to 0.8 rad/s
-          - Then settle to ≥ 0.5 rad/s.
+        adjust angular velocity. min_turn_speed=0.8 so turns don’t stall.
   - ALIGN_SERVO:
       * When bbox area ≥ 40% of frame, rover stops.
       * Servo alone pans slowly to center the target in the image.
@@ -153,18 +151,14 @@ class EnemyApproachAutofocusNode(Node):
         # ---- Rover motion params ----
         self.declare_parameter('forward_speed', 0.35)      # m/s, >= 0.3 so motors move
         self.declare_parameter('max_turn_speed', 0.8)      # rad/s for tracking
-        self.declare_parameter('min_turn_speed', 0.5)      # rad/s after boost
+        self.declare_parameter('min_turn_speed', 0.8)      # minimum |w| when turning
         self.declare_parameter('yaw_gain', 1.0)            # P-gain for bbox error
         self.declare_parameter('coverage_thresh', 0.40)    # 40% frame area
         self.declare_parameter('lost_timeout', 2.0)        # seconds lost → SEARCH
         self.declare_parameter('align_tol_n', 0.03)        # |x_n-0.5| tol for DRIVE align
 
-        # Coupled align turn speed (fixed, avoids stall)
+        # Coupled align turn speed (fixed, avoids stall, user liked 0.8)
         self.declare_parameter('turn_speed_coupled', 0.8)  # rad/s
-
-        # Turn boost behavior
-        self.declare_parameter('turn_boost_speed', 0.8)    # spike speed
-        self.declare_parameter('turn_boost_duration', 0.15)  # seconds
 
         # ---- Servo params (PCA9685) ----
         self.declare_parameter('servo_scan_min_deg', 30.0)
@@ -185,7 +179,7 @@ class EnemyApproachAutofocusNode(Node):
         self.declare_parameter('align_error_tol_n', 0.02)
 
         # ---- Focuser params ----
-        self.declare_parameter('focuser_bus', 9)
+        self.declare_parameter('focuser_bus', 10)
         self.declare_parameter('focus_start', 750)
         self.declare_parameter('focus_scan_step', 50)
         self.declare_parameter('focus_trim_step', 10)
@@ -213,9 +207,6 @@ class EnemyApproachAutofocusNode(Node):
         self.lost_timeout      = float(gp('lost_timeout').value)
         self.align_tol_n       = float(gp('align_tol_n').value)
         self.turn_speed_coupled= float(gp('turn_speed_coupled').value)
-
-        self.turn_boost_speed  = float(gp('turn_boost_speed').value)
-        self.turn_boost_duration = float(gp('turn_boost_duration').value)
 
         self.scan_min_deg      = float(gp('servo_scan_min_deg').value)
         self.scan_max_deg      = float(gp('servo_scan_max_deg').value)
@@ -297,10 +288,6 @@ class EnemyApproachAutofocusNode(Node):
         self.last_target_seen_time = None
         self.fire_start_time = None
 
-        # Turn boost state
-        self.last_turn_dir = 0  # -1, 0, +1
-        self.turn_boost_end_time = 0.0
-
         self.timer = self.create_timer(0.0, self.loop_once)
         self.get_logger().info("EnemyApproachAutofocusNode initialized.")
 
@@ -364,32 +351,10 @@ class EnemyApproachAutofocusNode(Node):
 
     # ---- Motion helpers ----
     def send_cmd(self, v, w, label=None):
-        now = time.time()
-
+        # enforce min_turn_speed whenever we ask for a non-zero w
         if abs(w) > 1e-3:
-            dir_sign = 1 if w > 0.0 else -1
-
-            # Detect new turn start or direction change
-            if self.last_turn_dir == 0 or dir_sign != self.last_turn_dir:
-                self.turn_boost_end_time = now + self.turn_boost_duration
-
-            self.last_turn_dir = dir_sign
-
-            # Base magnitude (respect max_turn_speed)
-            base_mag = min(abs(w), self.max_turn_speed)
-
-            # Apply boost at start of turn, then enforce min_turn_speed
-            if now <= self.turn_boost_end_time:
-                mag = self.turn_boost_speed
-            else:
-                mag = max(base_mag, self.min_turn_speed)
-
-            mag = min(mag, self.max_turn_speed)
-            w = dir_sign * mag
-        else:
-            # No turning: reset boost state
-            self.last_turn_dir = 0
-            self.turn_boost_end_time = 0.0
+            if 0.0 < abs(w) < self.min_turn_speed:
+                w = self.min_turn_speed * (w / abs(w))
 
         if abs(v - self.last_cmd_v) < 1e-3 and abs(w - self.last_cmd_w) < 1e-3:
             return
@@ -525,7 +490,7 @@ class EnemyApproachAutofocusNode(Node):
             if has_target:
                 self.get_logger().info("Target detected → ALIGN_COUPLED")
                 self.state = self.STATE_ALIGN_COUPLED
-                # Start ALIGN_COUPLED from current servo angle (no snap)
+                # Note: we deliberately do NOT snap to 90° here – we start from current angle
                 self.stop("SEARCH→ALIGN_COUPLED")
 
         elif self.state == self.STATE_ALIGN_COUPLED:
@@ -538,7 +503,16 @@ class EnemyApproachAutofocusNode(Node):
                     self.stop("ALIGN_COUPLED (brief loss)")
                 return
 
-            # Only job here: bring servo to 90° while rover rotates opposite
+            area = det["area_ratio"]
+            x_center_n = det["x_center_n"]
+            # If soldier already big enough, skip straight to ALIGN_SERVO
+            if area >= self.coverage_thresh:
+                self.get_logger().info("Coverage ≥ threshold in ALIGN_COUPLED → ALIGN_SERVO")
+                self.state = self.STATE_ALIGN_SERVO
+                self.stop("ALIGN_COUPLED→ALIGN_SERVO")
+                return
+
+            # Slowly pan servo toward 90°, and rotate rover opposite direction
             diff = self.servo_center_deg - self.servo_angle
             if abs(diff) <= self.servo_center_tol:
                 # Close enough → snap to exactly 90 and move to DRIVE
@@ -555,10 +529,10 @@ class EnemyApproachAutofocusNode(Node):
 
             # While servo is moving, rotate rover opposite direction
             if step > 0.0:
-                # servo moving toward the right (angle increasing) → rover left
+                # servo moving toward the right (angle increasing) → rotate rover left
                 w_cmd = self.turn_speed_coupled
             else:
-                # servo moving toward the left → rover right
+                # servo moving toward the left → rotate rover right
                 w_cmd = -self.turn_speed_coupled
 
             self.send_cmd(0.0, w_cmd, "ALIGN_COUPLED (servo+rover)")
@@ -586,7 +560,7 @@ class EnemyApproachAutofocusNode(Node):
                 self.stop("DRIVE→ALIGN_SERVO")
                 return
 
-            # Forward with P-controlled turn (boost logic in send_cmd)
+            # Forward with P-controlled turn
             w_cmd = -self.yaw_gain * error_n
             w_cmd = clamp(w_cmd, -self.max_turn_speed, self.max_turn_speed)
             v_cmd = self.forward_speed
