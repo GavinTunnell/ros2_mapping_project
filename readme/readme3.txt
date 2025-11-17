@@ -92,3 +92,11 @@ python3 wasd_teleop_with_slam_reset.py
 //ROSBridge to Tablet
 
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+
+
+cd ~/Desktop/ros2_mapping_project
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+export FASTDDS_TRANSPORT_SHARED_MEM=off
+
+ros2 launch ros2_mapping_project bringup.launch.py

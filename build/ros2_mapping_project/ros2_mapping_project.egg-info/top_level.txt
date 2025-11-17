@@ -1,1 +1,8 @@
+encoders_node
+imu_node
+keyboard_gpio_drive
+lidar_node
+mapping_launch
+motor_driver_pca_reg_dual
 ros2_mapping_project
+wasd_teleop

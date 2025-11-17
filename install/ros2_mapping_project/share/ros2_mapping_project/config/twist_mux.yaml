@@ -1,17 +1,1 @@
-
-twist_mux:
-  ros__parameters:
-    topics:
-      - name: nav2
-        topic: /cmd_vel_smoothed
-        timeout: 0.5
-        priority: 50
-      - name: avoid
-        topic: /obstacle_avoidance/cmd_vel
-        timeout: 0.3
-        priority: 70
-    locks:
-      - name: estop
-        topic: /obstacle_detected
-        timeout: 0.0
-        priority: 255
+/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/config/twist_mux.yaml
