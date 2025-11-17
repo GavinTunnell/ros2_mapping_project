@@ -1,4 +1,5 @@
-from setuptools import setup, find_packages
+
+from setuptools import setup
 from glob import glob
 import os
 
@@ -7,15 +8,28 @@ package_name = 'ros2_mapping_project'
 setup(
     name=package_name,
     version='0.0.1',
-    packages=find_packages(exclude=['test']),
+    py_modules=[
+        'encoders_node',
+        'imu_node',
+        'lidar_node',
+        'motor_driver_pca_reg_dual',
+    ],
     data_files=[
+        # Standard ROS2 package files
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+
+        # Install all launch files from the launch/ directory
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+
+        # Install all YAML parameter files from the config/ directory
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+
+        # Install all RViz configuration files from the rviz/ directory
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
+
+        # Install the URDF file from the description/ directory (if it exists)
         (os.path.join('share', package_name, 'description'), glob('description/*.urdf')),
-        (os.path.join('share', package_name), glob('*.yaml')),
-        (os.path.join('share', package_name), glob('*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,10 +39,10 @@ setup(
     license='BSD-3-Clause',
     entry_points={
         'console_scripts': [
-            'lidar_node = ros2_mapping_project.lidar_node:main',
-            'imu_node = ros2_mapping_project.imu_node:main',
-            'encoders_node = ros2_mapping_project.encoders_node:main',
-            'motor_driver_node = ros2_mapping_project.motor_driver_pca_reg_dual:main',
+            'lidar_node = lidar_node:main',
+            'imu_node = imu_node:main',
+            'encoders_node = encoders_node:main',
+            'motor_driver_node = motor_driver_pca_reg_dual:main',
         ],
     },
 )

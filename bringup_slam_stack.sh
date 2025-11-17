@@ -16,5 +16,5 @@ fi
 ###############################
 # 2. Launch the stack
 ###############################
-echo "[bringup] Launching SLAM stack..."
-ros2 launch launch/bringup.launch.py
+echo "[bringup] Launching SLAM mapping stack..."
+ros2 launch ros2_mapping_project mapping_launch.py

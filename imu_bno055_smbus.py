@@ -16,7 +16,7 @@ class BNO055(Node):
         self.bus_num = int(self.get_parameter('bus').value)
         self.addr    = int(self.get_parameter('address').value)
         self.frame_id= str(self.get_parameter('frame_id').value)
-        self.pub = self.create_publisher(Imu, '/imu/raw', 10)
+        self.pub = self.create_publisher(Imu, '/imu/data', 10)
         self.bus = smbus2.SMBus(self.bus_num)
         self._init_bno055()
         self.timer = self.create_timer(0.02, self._tick)
