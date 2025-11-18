@@ -6,6 +6,15 @@ slam_toolbox:
     base_frame: base_link
     odom_frame: odom
 
+    # Extra scan-matcher / search tuning
+    ceres_solver_iteration_limit: 20
+    correlation_search_space_dimension: 1.0
+    correlation_search_space_resolution: 0.01
+    loop_search_space_dimension: 8.0
+    loop_search_space_resolution: 0.05
+    loop_search_minimum_distance: 2.0
+    sigma: 0.05
+
     provide_odom_frame: false    # EKF publishes odom->base_link
     publish_tf: true             # SLAM publishes map->odom
 

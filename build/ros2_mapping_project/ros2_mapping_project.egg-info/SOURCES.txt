@@ -16,6 +16,7 @@ slam_params.yaml
 slam_params_no_ekf.yaml
 wasd_teleop.py
 config/motor_driver.yaml
+config/slam_params.yaml
 config/twist_mux.yaml
 launch/bringup.launch.py
 launch/bringup_gpio.launch.py

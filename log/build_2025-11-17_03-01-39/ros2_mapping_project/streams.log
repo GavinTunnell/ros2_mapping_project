@@ -1,0 +1,20 @@
+[1.308s] Invoking command in '/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project': PYTHONPATH=/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build --no-deps symlink_data
+[1.841s] running develop
+[2.190s] running egg_info
+[2.190s] writing ros2_mapping_project.egg-info/PKG-INFO
+[2.191s] writing dependency_links to ros2_mapping_project.egg-info/dependency_links.txt
+[2.191s] writing entry points to ros2_mapping_project.egg-info/entry_points.txt
+[2.191s] writing requirements to ros2_mapping_project.egg-info/requires.txt
+[2.191s] writing top-level names to ros2_mapping_project.egg-info/top_level.txt
+[2.196s] reading manifest file 'ros2_mapping_project.egg-info/SOURCES.txt'
+[2.197s] writing manifest file 'ros2_mapping_project.egg-info/SOURCES.txt'
+[2.200s] running build_ext
+[2.200s] Creating /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages/ros2-mapping-project.egg-link (link to .)
+[2.202s] Installing encoders_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.202s] Installing imu_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.203s] Installing lidar_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.203s] Installing motor_driver_node script to /home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/bin
+[2.203s] 
+[2.203s] Installed /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project
+[2.204s] running symlink_data
+[2.294s] Invoked command in '/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project' returned '0': PYTHONPATH=/home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/team4/Desktop/ros2_mapping_project/install/ros2_mapping_project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/team4/Desktop/ros2_mapping_project/build/ros2_mapping_project/build --no-deps symlink_data

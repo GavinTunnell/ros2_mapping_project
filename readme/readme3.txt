@@ -100,3 +100,9 @@ source install/setup.bash
 export FASTDDS_TRANSPORT_SHARED_MEM=off
 
 ros2 launch ros2_mapping_project bringup.launch.py
+
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+export FASTDDS_TRANSPORT_SHARED_MEM=off
+
+ros2 launch ros2_mapping_project bringup.launch.py
