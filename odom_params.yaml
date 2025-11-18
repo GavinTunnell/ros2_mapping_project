@@ -1,36 +1,32 @@
 ekf_filter_node:
   ros__parameters:
-    frequency: 50.0
+    frequency: 30.0
     sensor_timeout: 0.2
     two_d_mode: true
-    publish_tf: true
 
+    transform_time_offset: 0.0
+    transform_timeout: 0.2
+    print_diagnostics: true
+    debug: false
+
+    # All three must be unique
     map_frame: map
     odom_frame: odom
     base_link_frame: base_link
-    world_frame: odom
 
-    # -------------- wheel odom: x, y, vx only --------------
+    # EKF will publish odom -> base_link (world is odom)
+    world_frame: odom
+    publish_tf: true
+
+    # Only wheel odom fused
     odom0: wheel_odom
-    #        x     y     z    roll pitch yaw   vx    vy    vz   vroll vpitch vyaw  ax   ay   az
-    odom0_config: [true, true, false,
-                   false, false, false,
-                   true, false, false,
-                   false, false, false,
-                   false, false, false]
+    odom0_config: [
+      true,  true,  false,  # x, y, z
+      false, false, true,   # roll, pitch, yaw
+      true,  false, false,  # vx, vy, vz
+      false, false, true,   # vroll, vpitch, vyaw
+      false, false, false   # ax, ay, az
+    ]
     odom0_queue_size: 10
     odom0_differential: false
     odom0_relative: false
-
-    # -------------- IMU (from imu_filter_madgwick) : yaw + yaw rate only --------------
-    imu0: imu/data
-    #        x     y     z    roll pitch yaw   vx    vy    vz   vroll vpitch vyaw  ax   ay   az
-    imu0_config: [false, false, false,
-                  false, false, true,
-                  false, false, false,
-                  false, false, true,
-                  false, false, false]
-    imu0_queue_size: 10
-    imu0_differential: false
-    imu0_relative: false
-    imu0_remove_gravitational_acceleration: true
